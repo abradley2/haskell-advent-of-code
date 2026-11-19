@@ -1,17 +1,15 @@
 module TestSupport (Test, sampleTest, runTests) where
 
-import AdventOfCode.Solution (Solver)
 import Control.Exception (try)
-import Paths_advent_of_code (getDataFileName)
 
-data Test = SampleTest String FilePath Solver (Maybe String)
+data Test = SampleTest String ByteString (ByteString -> Either String String) (Maybe String)
 
 data TestResult = Passed | Pending | Failed String
   deriving (Show)
 
 -- | Set the expected answer to 'Just "answer"' to enable an assertion.
 -- 'Nothing' leaves the test pending while the day's solution is unfinished.
-sampleTest :: String -> FilePath -> Solver -> Maybe String -> Test
+sampleTest :: String -> ByteString -> (ByteString -> Either String String) -> Maybe String -> Test
 sampleTest = SampleTest
 
 runTests :: [Test] -> IO ()
@@ -31,7 +29,7 @@ runTests tests = do
 runTest :: Test -> IO TestResult
 runTest test@(SampleTest name _ _ _) = do
   attempt <- try $ do
-    result <- runSample test
+    let result = runSample test
     -- Keep solver exceptions inside this test so later tests still run.
     evaluateNF_ (show result :: String)
     pure result
@@ -44,14 +42,12 @@ runTest test@(SampleTest name _ _ _) = do
     Failed message -> "FAIL " ++ name ++ "\n  " ++ message
   pure result
 
-runSample :: Test -> IO TestResult
-runSample (SampleTest _ samplePath solve expected) = do
-  path <- getDataFileName samplePath
-  input <- readFileBS path
+runSample :: Test -> TestResult
+runSample (SampleTest _ input solve expected) =
   case expected of
-    Nothing -> pure Pending
+    Nothing -> Pending
     Just expectedAnswer ->
-      pure $ case solve input of
+      case solve input of
         Left message -> Failed ("Solver returned an error: " ++ message)
         Right actual
           | actual == expectedAnswer -> Passed

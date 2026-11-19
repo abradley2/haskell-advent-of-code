@@ -12,11 +12,17 @@ build-type:         Simple
 extra-doc-files:
     CHANGELOG.md
     README.md
-data-files:         samples/*.txt
 
 common defaults
     ghc-options:      -Wall
     default-language: Haskell2010
+    default-extensions:
+        OverloadedStrings,
+        LambdaCase,
+        TypeApplications,
+        ImportQualifiedPost,
+        TupleSections,
+        MultilineStrings
     build-depends:
         base >=4.18 && <5,
         bytestring >=0.11 && <0.13,
@@ -28,7 +34,6 @@ common defaults
 
 common all-days
     build-depends:
-        advent-of-code,
         advent-of-code:day01,
         advent-of-code:day02,
         advent-of-code:day03,
@@ -42,82 +47,65 @@ common all-days
         advent-of-code:day11,
         advent-of-code:day12
 
-library
-    import:           defaults
-    exposed-modules:  AdventOfCode.Solution
-    hs-source-dirs:   lib/common
-
 library day01
     import:           defaults
     exposed-modules:  Day01
     hs-source-dirs:   lib/day01
-    build-depends:    advent-of-code
 
 library day02
     import:           defaults
     exposed-modules:  Day02
     hs-source-dirs:   lib/day02
-    build-depends:    advent-of-code
 
 library day03
     import:           defaults
     exposed-modules:  Day03
     hs-source-dirs:   lib/day03
-    build-depends:    advent-of-code
 
 library day04
     import:           defaults
     exposed-modules:  Day04
     hs-source-dirs:   lib/day04
-    build-depends:    advent-of-code
 
 library day05
     import:           defaults
     exposed-modules:  Day05
     hs-source-dirs:   lib/day05
-    build-depends:    advent-of-code
 
 library day06
     import:           defaults
     exposed-modules:  Day06
     hs-source-dirs:   lib/day06
-    build-depends:    advent-of-code
 
 library day07
     import:           defaults
     exposed-modules:  Day07
     hs-source-dirs:   lib/day07
-    build-depends:    advent-of-code
 
 library day08
     import:           defaults
     exposed-modules:  Day08
     hs-source-dirs:   lib/day08
-    build-depends:    advent-of-code
 
 library day09
     import:           defaults
     exposed-modules:  Day09
     hs-source-dirs:   lib/day09
-    build-depends:    advent-of-code
 
 library day10
     import:           defaults
     exposed-modules:  Day10
     hs-source-dirs:   lib/day10
-    build-depends:    advent-of-code
 
 library day11
     import:           defaults
     exposed-modules:  Day11
     hs-source-dirs:   lib/day11
-    build-depends:    advent-of-code
 
 library day12
     import:           defaults
     exposed-modules:  Day12
     hs-source-dirs:   lib/day12
-    build-depends:    advent-of-code
 
 executable advent-of-code
     import:           defaults, all-days
@@ -144,6 +132,4 @@ executable test
         Day10Test
         Day11Test
         Day12Test
-        Paths_advent_of_code
-    autogen-modules:  Paths_advent_of_code
     hs-source-dirs:   test

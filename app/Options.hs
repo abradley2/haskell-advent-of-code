@@ -1,17 +1,17 @@
 module Options (Options (..), parseOptions, usage) where
 
-import System.Console.GetOpt
-  ( ArgDescr (NoArg, ReqArg),
-    ArgOrder (Permute),
-    OptDescr (Option),
-    getOpt,
-    usageInfo,
-  )
+import System.Console.GetOpt (
+  ArgDescr (NoArg, ReqArg),
+  ArgOrder (Permute),
+  OptDescr (Option),
+  getOpt,
+  usageInfo,
+ )
 
 data Options = Options
-  { day :: Int,
-    part :: Int,
-    inputPath :: FilePath
+  { day :: Int
+  , part :: Int
+  , inputPath :: FilePath
   }
   deriving (Eq, Show)
 
@@ -24,10 +24,9 @@ data Flag
 
 flags :: [OptDescr Flag]
 flags =
-  [ Option [] ["day"] (ReqArg DayFlag "DAY") "Day to run (1-12)",
-    Option [] ["part"] (ReqArg PartFlag "PART") "Part to run (1 or 2)",
-    Option [] ["input"] (ReqArg InputFlag "FILE") "Path to the puzzle input",
-    Option ['h'] ["help"] (NoArg HelpFlag) "Show this help"
+  [ Option [] ["day"] (ReqArg DayFlag "DAY") "Day to run (1-12)"
+  , Option [] ["part"] (ReqArg PartFlag "PART") "Part to run (1 or 2)"
+  , Option [] ["input"] (ReqArg InputFlag "FILE") "Path to the puzzle input"
   ]
 
 usage :: String
@@ -48,8 +47,8 @@ parseOptions args =
           dayValue <- required "--day" [value | DayFlag value <- options]
           partValue <- required "--part" [value | PartFlag value <- options]
           path <- required "--input" [value | InputFlag value <- options]
-          selectedDay <- boundedNumber "--day" 1 12 dayValue
-          selectedPart <- boundedNumber "--part" 1 2 partValue
+          selectedDay <- maybe (Left "--day must be an integer.") Right (readMaybe dayValue)
+          selectedPart <- maybe (Left "--part must be an integer.") Right (readMaybe partValue)
           if null path
             then Left "--input must be a non-empty file path."
             else Right (Just (Options selectedDay selectedPart path))
@@ -58,19 +57,3 @@ required :: String -> [String] -> Either String String
 required name [] = Left ("Missing required option: " ++ name)
 required _ [value] = Right value
 required name _ = Left ("Option may only be supplied once: " ++ name)
-
-boundedNumber :: String -> Int -> Int -> String -> Either String Int
-boundedNumber name lower upper value =
-  case readMaybe value :: Maybe Integer of
-    Just number
-      | number >= toInteger lower && number <= toInteger upper ->
-          Right (fromInteger number)
-    _ ->
-      Left
-        ( name
-            ++ " must be an integer between "
-            ++ show lower
-            ++ " and "
-            ++ show upper
-            ++ "."
-        )
